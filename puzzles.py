@@ -7,9 +7,15 @@ sample_puzzle = {
     ],
     "sets": [
         ["APPLE", "BANANA", "ORANGE", "PEAR"],     # fruit
-        ["CAR", "TRUCK", "BICYCLE", "BOAT"],       # vehicles/furniture (example)
+        ["CAR", "TRUCK", "BICYCLE", "BOAT"],       # vehicles
         ["CAT", "DOG", "FISH", "LION"],           # animals
-        ["SOFA", "BED", "CHAIR", "TABLE"]          # furniture/colors (example)
+        ["SOFA", "BED", "CHAIR", "TABLE"]          # furniture
+    ],
+    "categories": [
+        "Fruits",
+        "Vehicles",
+        "Animals",
+        "Furniture"
     ]
 }
 

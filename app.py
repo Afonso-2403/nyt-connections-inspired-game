@@ -22,13 +22,22 @@ def check_group():
 
     # get correct sets
     correct_sets = sample_puzzle["sets"]
+    categories = sample_puzzle["categories"]
     group_sorted = sorted(group)
 
+    set_category = "No category"
     correct = False
-    for s in correct_sets:
-        if sorted(s) == group_sorted:
+    for set, category in zip(correct_sets, categories):
+        if sorted(set) == group_sorted:
             correct = True
+            set_category = category
             break
+
+    response_dict = {
+        "correct": correct,
+        "category": set_category,
+    }
+    return jsonify(response_dict)
 
     return jsonify({"correct": correct})
 
