@@ -82,7 +82,8 @@ function showCompletedGroup(group, categoryName, colorClass){
   listDiv.className = "groupWords";
 
   group.forEach(w => {
-    const wEl = document.createElement("span");
+    const wEl = document.createElement("div");
+    wEl.className = "groupWord";
     wEl.textContent = w;
     listDiv.appendChild(wEl);
   });
