@@ -1,0 +1,41 @@
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 20px;
+}
+
+.word {
+    padding: 12px;
+    background: #eee;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.word.selected {
+    background: #aaf;
+}
+
+/* #completedGroups {
+  margin-bottom: 20px;
+}
+
+.completedGroup {
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.groupTitle {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.groupFound.yellow { background: #ffe680; }
+.groupFound.green { background: #b3ffb3; }
+.groupFound.blue { background: #b3d9ff; }
+.groupFound.purple { background: #e6ccff; } 
+ */

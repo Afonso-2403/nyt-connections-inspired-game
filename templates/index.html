@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connections Prototype</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Connections-Style Game</h1>
+
+    <div id="grid"></div>
+
+    <div id="selected"><strong>Selected:</strong> <span id="selWords"></span></div>
+
+    <button id="submitBtn">Submit Group</button>
+    <div id="result"></div>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
