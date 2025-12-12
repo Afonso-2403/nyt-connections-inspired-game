@@ -22,14 +22,14 @@ sample_puzzle = {
 lena_puzzle = {
     "words": [
         "CAKE", "DIVER", "READ", "DARE",
-        "DREA", "HALLOWEEN", "HOLIDAYS", "GERMAN",
+        "ADER", "HALLOWEEN", "HOLIDAYS", "GERMAN",
         "BLONDE", "SUIT", "FAMILY", "KIND",
         "PARTY", "BIRTHDAY", "CARD", "RADE"
     ],
     "sets": [
         ["BIRTHDAY", "HOLIDAYS", "FAMILY", "HALLOWEEN"],     
         ["CAKE", "SUIT", "PARTY", "CARD"],       
-        ["READ", "DARE", "DREA", "RADE"],           
+        ["READ", "DARE", "ADER", "RADE"],           
         ["BLONDE", "GERMAN", "KIND", "DIVER"]          
     ]
 }
