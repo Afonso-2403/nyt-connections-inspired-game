@@ -3,10 +3,10 @@ sample_puzzle = {
         "APPLE", "BANANA", "CAR", "TRUCK",
         "CAT", "DOG", "FISH", "LION",
         "TABLE", "CHAIR", "SOFA", "BED",
-        "PEAR", "BICYCLE", "BOAT", "ORANGE"
+        "CHERRY", "BICYCLE", "BOAT", "ORANGE"
     ],
     "sets": [
-        ["APPLE", "BANANA", "ORANGE", "PEAR"],     # fruit
+        ["APPLE", "BANANA", "ORANGE", "CHERRY"],     # fruit
         ["CAR", "TRUCK", "BICYCLE", "BOAT"],       # vehicles
         ["CAT", "DOG", "FISH", "LION"],           # animals
         ["SOFA", "BED", "CHAIR", "TABLE"]          # furniture
