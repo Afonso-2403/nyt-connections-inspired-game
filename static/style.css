@@ -19,7 +19,7 @@
     background: #aaf;
 }
 
-/* #completedGroups {
+#completedGroups {
   margin-bottom: 20px;
 }
 
@@ -38,4 +38,4 @@
 .groupFound.green { background: #b3ffb3; }
 .groupFound.blue { background: #b3d9ff; }
 .groupFound.purple { background: #e6ccff; } 
- */
+

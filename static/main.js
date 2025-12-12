@@ -49,14 +49,14 @@ document.getElementById("submitBtn").onclick = () => {
     document.getElementById("result").textContent =
       resp.correct ? "✅ Correct!" : "❌ Try again";
 
-    // if(resp.correct){
-    //   // Example category name; you could let the backend return a real one
-    //   let categoryName = resp.category || "Category";
-    //   // remove words from overall grid
-    //   removeFromGrid(selected);
-    //   // show in completed UI
-    //   showCompletedGroup(selected, categoryName, "groupFound");
-    // }
+    if(resp.correct){
+      // Example category name; you could let the backend return a real one
+      let categoryName = resp.category || "Category";
+      // remove words from overall grid
+      removeFromGrid(selected);
+      // show in completed UI
+      showCompletedGroup(selected, categoryName, "groupFound");
+    }
 
     clearSelection();
   });
@@ -68,27 +68,37 @@ function clearSelection() {
   document.getElementById("selWords").textContent = "";
 }
 
-// function showCompletedGroup(group, categoryName, colorClass){
-//   const container = document.getElementById("completedGroups");
+function showCompletedGroup(group, categoryName, colorClass){
+  const container = document.getElementById("completedGroups");
 
-//   const groupDiv = document.createElement("div");
-//   groupDiv.className = "completedGroup " + colorClass;
+  const groupDiv = document.createElement("div");
+  groupDiv.className = "completedGroup " + colorClass;
 
-//   const title = document.createElement("div");
-//   title.className = "groupTitle";
-//   title.textContent = categoryName;
+  const title = document.createElement("div");
+  title.className = "groupTitle";
+  title.textContent = categoryName;
 
-//   const listDiv = document.createElement("div");
-//   listDiv.className = "groupWords";
+  const listDiv = document.createElement("div");
+  listDiv.className = "groupWords";
 
-//   group.forEach(w => {
-//     const wEl = document.createElement("span");
-//     wEl.textContent = w;
-//     listDiv.appendChild(wEl);
-//   });
+  group.forEach(w => {
+    const wEl = document.createElement("span");
+    wEl.textContent = w;
+    listDiv.appendChild(wEl);
+  });
 
-//   groupDiv.appendChild(title);
-//   groupDiv.appendChild(listDiv);
+  groupDiv.appendChild(title);
+  groupDiv.appendChild(listDiv);
 
-//   container.appendChild(groupDiv);
-// }
+  container.appendChild(groupDiv);
+}
+
+function removeFromGrid(wordsToRemove) {
+  // Remove from the puzzle data array
+  puzzleData.words = puzzleData.words.filter(
+    w => !wordsToRemove.includes(w)
+  );
+
+  // Re-draw the grid
+  renderGrid();
+}
