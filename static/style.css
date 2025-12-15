@@ -16,7 +16,7 @@
 }
 
 .word.selected {
-    background: #aaf;
+    background: rgb(170, 242, 255);
 }
 
 #completedGroups {
