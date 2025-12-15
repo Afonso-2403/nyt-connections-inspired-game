@@ -1,5 +1,4 @@
 from flask import Flask, render_template, jsonify, request
-import random
 from puzzles import sample_puzzle
 
 app = Flask(__name__)
