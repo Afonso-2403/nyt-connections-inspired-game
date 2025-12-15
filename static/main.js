@@ -30,7 +30,6 @@ function toggleSelect(el, word) {
     selected.push(word);
     el.classList.add("selected");
   }
-  document.getElementById("selWords").textContent = selected.join(", ");
 }
 
 document.getElementById("submitBtn").onclick = () => {
@@ -65,7 +64,6 @@ document.getElementById("submitBtn").onclick = () => {
 function clearSelection() {
   selected = [];
   document.querySelectorAll(".word.selected").forEach(el => el.classList.remove("selected"));
-  document.getElementById("selWords").textContent = "";
 }
 
 function showCompletedGroup(group, categoryName, colorClass){
