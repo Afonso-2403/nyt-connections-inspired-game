@@ -5,6 +5,10 @@
 A small prototype that mimics the New York Times "Connections" game. 
 Pick the correct groups of four related words.
 
+**Deployment**
+
+This web app is deployed in [python anywhere](https://www.pythonanywhere.com) and can be accessed through [this url](https://connectionsstylegame.pythonanywhere.com/).
+
 **Files & Components**
 - **`app.py`:** Flask application and API endpoints
 - **`puzzles.py`:** Example puzzles and their correct sets.
