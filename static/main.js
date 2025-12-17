@@ -55,6 +55,12 @@ document.getElementById("submitBtn").onclick = () => {
       removeFromGrid(selected);
       // show in completed UI
       showCompletedGroup(selected, categoryName, "groupFound");
+      // mark as completed and show celebration if all found
+      completed.push(categoryName);
+      const totalSets = puzzleData && puzzleData.sets ? puzzleData.sets.length : 4;
+      if (completed.length >= totalSets) {
+        showCelebration();
+      }
     }
 
     clearSelection();
@@ -100,4 +106,23 @@ function removeFromGrid(wordsToRemove) {
 
   // Re-draw the grid
   renderGrid();
+}
+
+// show a big celebratory message when all groups are found
+function showCelebration(){
+  // prevent duplicates
+  if (document.getElementById('celebrationOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'celebrationOverlay';
+  overlay.className = 'celebration';
+  overlay.innerHTML = `
+    <div class="celebrationContent">
+      <h1>Happy Birthday Dear Lena!!!</h1>
+    </div>
+  `;
+  // optionally allow click to dismiss
+  overlay.onclick = () => overlay.remove();
+  document.body.appendChild(overlay);
+  // scroll to top to ensure it's visible
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
