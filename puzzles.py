@@ -39,3 +39,24 @@ lena_puzzle = {
         "Lena"
     ]
 }
+
+alvaro_puzzle = {
+    "words": [
+        "ALLEY", "ALL", "ALBERT", "COURSE",
+        "SØREN", "IDEA", "STEP", "SLAY",
+        "DRIP", "RIZZ", "SLAM", "CHARACTER",
+        "SIMONE", "FRIEDRICH", "FEED", "FLEX"
+    ],
+    "sets": [
+        ["RIZZ", "DRIP", "FLEX", "SLAY"],     
+        ["SLAM", "ALLEY", "ALL", "STEP"],       
+        ["ALBERT", "SØREN", "FRIEDRICH", "SIMONE"],           
+        ["CHARACTER", "FEED", "COURSE", "IDEA"]          
+    ],
+    "categories": [
+        "Gen Z vocabulary",
+        "First word in baskteball expressions",
+        "First name of existentialist philosophers",
+        "Main _____"
+    ]
+}
