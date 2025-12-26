@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
-from puzzles import lena_puzzle
+from puzzles import alvaro_puzzle
 
+game_puzzle = alvaro_puzzle
 app = Flask(__name__)
 
 # serve homepage
@@ -11,7 +12,7 @@ def index():
 # return a random puzzle
 @app.route("/api/puzzle")
 def puzzle():
-    return jsonify(lena_puzzle)
+    return jsonify(game_puzzle)
 
 # check a group
 @app.route("/api/check", methods=["POST"])
@@ -20,8 +21,8 @@ def check_group():
     group = data.get("group", [])
 
     # get correct sets
-    correct_sets = lena_puzzle["sets"]
-    categories = lena_puzzle["categories"]
+    correct_sets = game_puzzle["sets"]
+    categories = game_puzzle["categories"]
     group_sorted = sorted(group)
 
     set_category = "No category"
