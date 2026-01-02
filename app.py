@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request
-from puzzles import alvaro_puzzle
+import puzzles
 
-game_puzzle = alvaro_puzzle
+game_puzzle = puzzles.lena_puzzle
 app = Flask(__name__)
 
 # serve homepage
