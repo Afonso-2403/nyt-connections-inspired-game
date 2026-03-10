@@ -16,11 +16,13 @@ Requires `uv` for dependency management. Python 3.13+, Flask is the only depende
 
 ## Architecture
 
-- **`app.py`** — Flask app with three routes: `GET /` (serves HTML), `GET /api/puzzle` (returns current puzzle JSON), `POST /api/check` (validates a group of 4 words against correct sets)
-- **`puzzles.py`** — Puzzle definitions as dicts with `words` (16 items), `sets` (4 groups of 4), and `categories` (4 labels). The active puzzle is selected by changing the `game_puzzle` variable in `app.py`
+- **`app.py`** — Flask app with three routes: `GET /` (serves HTML), `GET /api/puzzle` (returns current puzzle JSON), `POST /api/check` (validates a group of 4 words against correct sets). The `ACTIVE_PUZZLE` variable controls which puzzle is served.
+- **`db.py`** — SQLite database layer. Tables: `puzzles`, `categories`, `words`. Provides `get_puzzle_by_name()`, `add_puzzle()`, `list_puzzles()`. DB file is `connections.db` in the project root.
+- **`seed_db.py`** — Migrates puzzles from the legacy `puzzles.py` into the database. Run with `uv run python seed_db.py`. Safe to re-run (skips existing puzzles).
+- **`puzzles.py`** — Legacy puzzle definitions (kept for reference/seeding)
 - **`static/main.js`** — Client-side game logic: grid rendering, word selection, group submission via fetch to `/api/check`
 - **`templates/index.html`** — Single-page Jinja2 template
 
 ## Adding Puzzles
 
-Add a new dict to `puzzles.py` following the existing structure, then update `game_puzzle` in `app.py` to point to it.
+Use `db.add_puzzle()` to insert new puzzles programmatically, then set `ACTIVE_PUZZLE` in `app.py` to the puzzle name.
