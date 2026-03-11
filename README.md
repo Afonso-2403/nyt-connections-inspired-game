@@ -27,6 +27,10 @@ uv run python ./app.py
 **Add or edit puzzles**
 - Edit `puzzles.py` and add puzzles to the same structure: a `words` list and `sets` (arrays of correct 4-word groups).
 
+**Run tests**
+```
+uv run pytest test_app.py -v
+```
 
 **License & Credits**
 - This is a small prototype and not affiliated with the New York Times.
