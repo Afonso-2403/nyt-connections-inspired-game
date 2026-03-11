@@ -108,6 +108,105 @@ function removeFromGrid(wordsToRemove) {
   renderGrid();
 }
 
+// --- Create Puzzle Modal ---
+
+const modal = document.getElementById("createPuzzleModal");
+const categoryFormsDiv = document.getElementById("categoryForms");
+const createError = document.getElementById("createError");
+const puzzleNameInput = document.getElementById("puzzleName");
+const createSubmitBtn = document.getElementById("createSubmitBtn");
+
+function generatePuzzleName() {
+  const hex = Math.random().toString(16).slice(2, 6);
+  return `puzzle-${hex}`;
+}
+
+function buildCategoryForms() {
+  categoryFormsDiv.innerHTML = "";
+  for (let i = 0; i < 4; i++) {
+    const section = document.createElement("div");
+    section.className = "category-section";
+    section.innerHTML = `
+      <label>Category ${i + 1} Name</label>
+      <input type="text" class="cat-name" data-index="${i}" placeholder="e.g. Fruits">
+      <div class="cat-words">
+        <input type="text" class="cat-word" data-cat="${i}" placeholder="Word 1">
+        <input type="text" class="cat-word" data-cat="${i}" placeholder="Word 2">
+        <input type="text" class="cat-word" data-cat="${i}" placeholder="Word 3">
+        <input type="text" class="cat-word" data-cat="${i}" placeholder="Word 4">
+      </div>
+    `;
+    categoryFormsDiv.appendChild(section);
+  }
+}
+
+function validateModalForm() {
+  const catNames = document.querySelectorAll(".cat-name");
+  const catWords = document.querySelectorAll(".cat-word");
+  let allFilled = true;
+  catNames.forEach(input => { if (!input.value.trim()) allFilled = false; });
+  catWords.forEach(input => { if (!input.value.trim()) allFilled = false; });
+  createSubmitBtn.disabled = !allFilled;
+}
+
+document.getElementById("createPuzzleBtn").onclick = () => {
+  puzzleNameInput.value = generatePuzzleName();
+  createError.textContent = "";
+  createSubmitBtn.disabled = true;
+  buildCategoryForms();
+  modal.style.display = "flex";
+
+  // Live validation on input
+  categoryFormsDiv.addEventListener("input", validateModalForm);
+};
+
+document.getElementById("createCancelBtn").onclick = () => {
+  modal.style.display = "none";
+};
+
+// Close modal on overlay click (not content)
+modal.onclick = (e) => {
+  if (e.target === modal) modal.style.display = "none";
+};
+
+createSubmitBtn.onclick = () => {
+  createError.textContent = "";
+
+  const name = puzzleNameInput.value.trim();
+  const categories = [];
+  for (let i = 0; i < 4; i++) {
+    const catName = document.querySelector(`.cat-name[data-index="${i}"]`).value.trim();
+    const wordInputs = document.querySelectorAll(`.cat-word[data-cat="${i}"]`);
+    const words = Array.from(wordInputs).map(el => el.value.trim());
+    categories.push({ name: catName, words });
+  }
+
+  // Client-side duplicate word check
+  const allWords = categories.flatMap(c => c.words.map(w => w.toUpperCase()));
+  if (new Set(allWords).size !== allWords.length) {
+    createError.textContent = "Duplicate words found. Each word must be unique.";
+    return;
+  }
+
+  const payload = { categories };
+  if (name) payload.name = name;
+
+  fetch("/api/puzzle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json().then(data => ({ status: res.status, data })))
+  .then(({ status, data }) => {
+    if (status === 201) {
+      modal.style.display = "none";
+      alert(`Puzzle "${data.name}" created successfully!`);
+    } else {
+      createError.textContent = data.error || "Failed to create puzzle.";
+    }
+  });
+};
+
 // show a big celebratory message when all groups are found
 function showCelebration(){
   // prevent duplicates
