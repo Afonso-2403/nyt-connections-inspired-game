@@ -47,44 +47,54 @@ def check_group():
     return jsonify({"correct": correct, "category": set_category})
 
 
-@app.route("/api/puzzle", methods=["POST"])
-def create_puzzle():
-    data = request.json or {}
+def validate_and_clean_puzzle(data):
+    """Validate and clean puzzle input data.
 
-    # Parse and strip name; generate if missing/blank
+    Returns (name, categories_with_words) on success.
+    Raises ValueError with a descriptive message on invalid input.
+    """
     name = (data.get("name") or "").strip()
     if not name:
         name = f"puzzle-{uuid.uuid4().hex[:6]}"
 
-    # Validate categories structure
     categories = data.get("categories")
     if not categories or not isinstance(categories, list) or len(categories) != 4:
-        return jsonify({"error": "Exactly 4 categories required"}), 400
+        raise ValueError("Exactly 4 categories required")
 
     all_words = []
     categories_with_words = []
     for cat in categories:
         cat_name = (cat.get("name") or "").strip()
         if not cat_name:
-            return jsonify({"error": "Category name must not be empty"}), 400
+            raise ValueError("Category name must not be empty")
 
         words = cat.get("words")
         if not words or not isinstance(words, list) or len(words) != 4:
-            return jsonify({"error": f"Category '{cat_name}' must have exactly 4 words"}), 400
+            raise ValueError(f"Category '{cat_name}' must have exactly 4 words")
 
         cleaned_words = []
         for w in words:
             word = (w or "").strip().upper()
             if not word:
-                return jsonify({"error": "Words must not be empty"}), 400
+                raise ValueError("Words must not be empty")
             cleaned_words.append(word)
 
         all_words.extend(cleaned_words)
         categories_with_words.append((cat_name, cleaned_words))
 
-    # Check for duplicate words across all categories
     if len(all_words) != len(set(all_words)):
-        return jsonify({"error": "Duplicate words found across categories"}), 400
+        raise ValueError("Duplicate words found across categories")
+
+    return name, categories_with_words
+
+
+@app.route("/api/puzzle", methods=["POST"])
+def create_puzzle():
+    data = request.json or {}
+    try:
+        name, categories_with_words = validate_and_clean_puzzle(data)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     try:
         puzzle_id = db.add_puzzle(name, categories_with_words)

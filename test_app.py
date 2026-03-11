@@ -152,10 +152,11 @@ class TestAPI:
         assert b"Connections" in resp.data
 
 
-# --- Create puzzle API tests ---
+# --- Validation unit tests ---
 
+from app import validate_and_clean_puzzle
 
-VALID_CREATE_PAYLOAD = {
+VALID_INPUT = {
     "name": "my-puzzle",
     "categories": [
         {"name": "Fruits", "words": ["APPLE", "BANANA", "ORANGE", "CHERRY"]},
@@ -166,133 +167,32 @@ VALID_CREATE_PAYLOAD = {
 }
 
 
-class TestCreatePuzzleAPI:
-    def test_create_puzzle_success(self, client):
-        resp = client.post("/api/puzzle", json=VALID_CREATE_PAYLOAD)
-        assert resp.status_code == 201
-        data = resp.get_json()
-        assert data["name"] == "my-puzzle"
-        assert "id" in data
+class TestValidateAndCleanPuzzle:
+    def test_valid_input(self):
+        name, cats = validate_and_clean_puzzle(VALID_INPUT)
+        assert name == "my-puzzle"
+        assert len(cats) == 4
+        assert cats[0] == ("Fruits", ["APPLE", "BANANA", "ORANGE", "CHERRY"])
 
-        # Verify it's actually in the database
-        puzzle = db.get_puzzle_by_name("my-puzzle")
-        assert puzzle is not None
-        assert puzzle["categories"] == ["Fruits", "Vehicles", "Animals", "Furniture"]
+    def test_missing_name_generates_one(self):
+        data = {"categories": VALID_INPUT["categories"]}
+        name, _ = validate_and_clean_puzzle(data)
+        assert name.startswith("puzzle-")
+        assert len(name) > len("puzzle-")
 
-    def test_create_puzzle_without_name_generates_one(self, client):
-        payload = {
-            "categories": VALID_CREATE_PAYLOAD["categories"],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 201
-        data = resp.get_json()
-        assert data["name"].startswith("puzzle-")
-        assert len(data["name"]) > len("puzzle-")
+    def test_blank_name_generates_one(self):
+        data = {"name": "   ", "categories": VALID_INPUT["categories"]}
+        name, _ = validate_and_clean_puzzle(data)
+        assert name.startswith("puzzle-")
 
-    def test_create_puzzle_with_empty_name_generates_one(self, client):
-        payload = {
-            "name": "   ",
-            "categories": VALID_CREATE_PAYLOAD["categories"],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 201
-        data = resp.get_json()
-        assert data["name"].startswith("puzzle-")
+    def test_strips_whitespace_from_name(self):
+        data = {"name": "  my-puzzle  ", "categories": VALID_INPUT["categories"]}
+        name, _ = validate_and_clean_puzzle(data)
+        assert name == "my-puzzle"
 
-    def test_create_puzzle_duplicate_name(self, client):
-        client.post("/api/puzzle", json=VALID_CREATE_PAYLOAD)
-        resp = client.post("/api/puzzle", json=VALID_CREATE_PAYLOAD)
-        assert resp.status_code == 409
-        data = resp.get_json()
-        assert "error" in data
-
-    def test_create_puzzle_missing_categories(self, client):
-        resp = client.post("/api/puzzle", json={"name": "bad"})
-        assert resp.status_code == 400
-
-    def test_create_puzzle_wrong_number_of_categories(self, client):
-        payload = {
-            "name": "short",
-            "categories": VALID_CREATE_PAYLOAD["categories"][:2],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 400
-
-    def test_create_puzzle_wrong_number_of_words(self, client):
-        payload = {
-            "name": "bad-words",
-            "categories": [
-                {"name": "Fruits", "words": ["APPLE", "BANANA", "ORANGE"]},
-                {"name": "Vehicles", "words": ["CAR", "TRUCK", "BICYCLE", "BOAT"]},
-                {"name": "Animals", "words": ["CAT", "DOG", "FISH", "LION"]},
-                {"name": "Furniture", "words": ["SOFA", "BED", "CHAIR", "TABLE"]},
-            ],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 400
-
-    def test_create_puzzle_empty_category_name(self, client):
-        payload = {
-            "name": "empty-cat",
-            "categories": [
-                {"name": "", "words": ["A", "B", "C", "D"]},
-                {"name": "Two", "words": ["E", "F", "G", "H"]},
-                {"name": "Three", "words": ["I", "J", "K", "L"]},
-                {"name": "Four", "words": ["M", "N", "O", "P"]},
-            ],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 400
-
-    def test_create_puzzle_empty_word(self, client):
-        payload = {
-            "name": "empty-word",
-            "categories": [
-                {"name": "One", "words": ["A", "", "C", "D"]},
-                {"name": "Two", "words": ["E", "F", "G", "H"]},
-                {"name": "Three", "words": ["I", "J", "K", "L"]},
-                {"name": "Four", "words": ["M", "N", "O", "P"]},
-            ],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 400
-
-    def test_create_puzzle_duplicate_words(self, client):
-        payload = {
-            "name": "dupes",
-            "categories": [
-                {"name": "One", "words": ["APPLE", "B", "C", "D"]},
-                {"name": "Two", "words": ["APPLE", "F", "G", "H"]},
-                {"name": "Three", "words": ["I", "J", "K", "L"]},
-                {"name": "Four", "words": ["M", "N", "O", "P"]},
-            ],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 400
-        data = resp.get_json()
-        assert "duplicate" in data["error"].lower()
-
-    def test_create_puzzle_words_are_uppercased(self, client):
-        payload = {
-            "name": "casing-test",
-            "categories": [
-                {"name": "One", "words": ["apple", "Banana", "oRaNgE", "CHERRY"]},
-                {"name": "Two", "words": ["car", "truck", "bicycle", "boat"]},
-                {"name": "Three", "words": ["cat", "dog", "fish", "lion"]},
-                {"name": "Four", "words": ["sofa", "bed", "chair", "table"]},
-            ],
-        }
-        resp = client.post("/api/puzzle", json=payload)
-        assert resp.status_code == 201
-
-        puzzle = db.get_puzzle_by_name("casing-test")
-        assert puzzle is not None
-        for word in puzzle["words"]:
-            assert word == word.upper(), f"Word '{word}' was not uppercased"
-
-    def test_create_puzzle_strips_whitespace(self, client):
-        payload = {
-            "name": "  strip-test  ",
+    def test_strips_whitespace_from_category_and_words(self):
+        data = {
+            "name": "test",
             "categories": [
                 {"name": "  One  ", "words": [" A ", "B", "C", "D"]},
                 {"name": "Two", "words": ["E", "F", "G", "H"]},
@@ -300,12 +200,109 @@ class TestCreatePuzzleAPI:
                 {"name": "Four", "words": ["M", "N", "O", "P"]},
             ],
         }
-        resp = client.post("/api/puzzle", json=payload)
+        _, cats = validate_and_clean_puzzle(data)
+        assert cats[0][0] == "One"
+        assert cats[0][1][0] == "A"
+
+    def test_uppercases_words(self):
+        data = {
+            "name": "test",
+            "categories": [
+                {"name": "One", "words": ["apple", "Banana", "oRaNgE", "CHERRY"]},
+                {"name": "Two", "words": ["car", "truck", "bicycle", "boat"]},
+                {"name": "Three", "words": ["cat", "dog", "fish", "lion"]},
+                {"name": "Four", "words": ["sofa", "bed", "chair", "table"]},
+            ],
+        }
+        _, cats = validate_and_clean_puzzle(data)
+        for _, words in cats:
+            for word in words:
+                assert word == word.upper()
+
+    def test_missing_categories_raises(self):
+        with pytest.raises(ValueError):
+            validate_and_clean_puzzle({"name": "bad"})
+
+    def test_wrong_number_of_categories_raises(self):
+        data = {"name": "short", "categories": VALID_INPUT["categories"][:2]}
+        with pytest.raises(ValueError):
+            validate_and_clean_puzzle(data)
+
+    def test_wrong_number_of_words_raises(self):
+        data = {
+            "name": "bad",
+            "categories": [
+                {"name": "Fruits", "words": ["APPLE", "BANANA", "ORANGE"]},
+                {"name": "Vehicles", "words": ["CAR", "TRUCK", "BICYCLE", "BOAT"]},
+                {"name": "Animals", "words": ["CAT", "DOG", "FISH", "LION"]},
+                {"name": "Furniture", "words": ["SOFA", "BED", "CHAIR", "TABLE"]},
+            ],
+        }
+        with pytest.raises(ValueError):
+            validate_and_clean_puzzle(data)
+
+    def test_empty_category_name_raises(self):
+        data = {
+            "name": "bad",
+            "categories": [
+                {"name": "", "words": ["A", "B", "C", "D"]},
+                {"name": "Two", "words": ["E", "F", "G", "H"]},
+                {"name": "Three", "words": ["I", "J", "K", "L"]},
+                {"name": "Four", "words": ["M", "N", "O", "P"]},
+            ],
+        }
+        with pytest.raises(ValueError):
+            validate_and_clean_puzzle(data)
+
+    def test_empty_word_raises(self):
+        data = {
+            "name": "bad",
+            "categories": [
+                {"name": "One", "words": ["A", "", "C", "D"]},
+                {"name": "Two", "words": ["E", "F", "G", "H"]},
+                {"name": "Three", "words": ["I", "J", "K", "L"]},
+                {"name": "Four", "words": ["M", "N", "O", "P"]},
+            ],
+        }
+        with pytest.raises(ValueError):
+            validate_and_clean_puzzle(data)
+
+    def test_duplicate_words_raises(self):
+        data = {
+            "name": "bad",
+            "categories": [
+                {"name": "One", "words": ["APPLE", "B", "C", "D"]},
+                {"name": "Two", "words": ["APPLE", "F", "G", "H"]},
+                {"name": "Three", "words": ["I", "J", "K", "L"]},
+                {"name": "Four", "words": ["M", "N", "O", "P"]},
+            ],
+        }
+        with pytest.raises(ValueError, match="(?i)duplicate"):
+            validate_and_clean_puzzle(data)
+
+
+# --- Create puzzle API tests ---
+
+
+class TestCreatePuzzleAPI:
+    def test_create_puzzle_success(self, client):
+        resp = client.post("/api/puzzle", json=VALID_INPUT)
         assert resp.status_code == 201
         data = resp.get_json()
-        assert data["name"] == "strip-test"
+        assert data["name"] == "my-puzzle"
+        assert "id" in data
 
-        puzzle = db.get_puzzle_by_name("strip-test")
+        puzzle = db.get_puzzle_by_name("my-puzzle")
         assert puzzle is not None
-        assert puzzle["categories"][0] == "One"
-        assert "A" in puzzle["words"]
+        assert puzzle["categories"] == ["Fruits", "Vehicles", "Animals", "Furniture"]
+
+    def test_create_puzzle_duplicate_name(self, client):
+        client.post("/api/puzzle", json=VALID_INPUT)
+        resp = client.post("/api/puzzle", json=VALID_INPUT)
+        assert resp.status_code == 409
+        assert "error" in resp.get_json()
+
+    def test_create_puzzle_validation_error_returns_400(self, client):
+        resp = client.post("/api/puzzle", json={"name": "bad"})
+        assert resp.status_code == 400
+        assert "error" in resp.get_json()
