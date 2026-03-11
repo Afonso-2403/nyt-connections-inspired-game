@@ -1,11 +1,26 @@
 let puzzleData = null;
+let puzzleName = null;
 let selected = [];
 let completed = [];
 
-fetch("/api/puzzle")
+// Use puzzle name from URL if present, otherwise fetch a random one
+const urlParams = new URLSearchParams(window.location.search);
+const requestedPuzzle = urlParams.get("puzzle");
+const fetchUrl = requestedPuzzle
+  ? `/api/puzzle?name=${encodeURIComponent(requestedPuzzle)}`
+  : "/api/puzzle";
+
+fetch(fetchUrl)
   .then(res => res.json())
   .then(data => {
     puzzleData = data;
+    puzzleName = data.name;
+    // Pin the puzzle in the URL so refreshes keep the same puzzle
+    if (!requestedPuzzle && puzzleName) {
+      const url = new URL(window.location);
+      url.searchParams.set("puzzle", puzzleName);
+      history.replaceState(null, "", url);
+    }
     renderGrid();
   });
 
@@ -38,7 +53,7 @@ document.getElementById("submitBtn").onclick = () => {
     return;
   }
 
-  fetch("/api/check", {
+  fetch(`/api/check?name=${encodeURIComponent(puzzleName)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ group: selected })

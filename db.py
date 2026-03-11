@@ -58,8 +58,15 @@ def add_puzzle(name, categories_with_words):
 
 
 def get_puzzle_by_id(puzzle_id):
-    """Return a puzzle dict matching the frontend format: {words, sets, categories}."""
+    """Return a puzzle dict: {name, words, sets, categories}."""
     conn = get_db()
+    puzzle_row = conn.execute(
+        "SELECT name FROM puzzles WHERE id = ?", (puzzle_id,)
+    ).fetchone()
+    if not puzzle_row:
+        conn.close()
+        return None
+
     cats = conn.execute(
         "SELECT id, name FROM categories WHERE puzzle_id = ? ORDER BY sort_order",
         (puzzle_id,),
@@ -82,13 +89,28 @@ def get_puzzle_by_id(puzzle_id):
     conn.close()
 
     random.shuffle(all_words)
-    return {"words": all_words, "sets": sets, "categories": categories}
+    return {
+        "name": puzzle_row["name"],
+        "words": all_words,
+        "sets": sets,
+        "categories": categories,
+    }
 
 
 def get_puzzle_by_name(name):
     """Look up a puzzle by name and return its formatted dict."""
     conn = get_db()
     row = conn.execute("SELECT id FROM puzzles WHERE name = ?", (name,)).fetchone()
+    conn.close()
+    if not row:
+        return None
+    return get_puzzle_by_id(row["id"])
+
+
+def get_random_puzzle():
+    """Return a random puzzle from the database, or None if empty."""
+    conn = get_db()
+    row = conn.execute("SELECT id FROM puzzles ORDER BY RANDOM() LIMIT 1").fetchone()
     conn.close()
     if not row:
         return None

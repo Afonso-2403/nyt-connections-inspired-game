@@ -101,15 +101,27 @@ def client():
     import app as flask_app
 
     flask_app.app.config["TESTING"] = True
-    # Seed a puzzle matching ACTIVE_PUZZLE
-    db.add_puzzle(flask_app.ACTIVE_PUZZLE, SAMPLE_PUZZLE)
+    db.add_puzzle("test-puzzle", SAMPLE_PUZZLE)
     with flask_app.app.test_client() as c:
         yield c
 
 
+class TestGetRandomPuzzle:
+    def test_returns_a_puzzle(self):
+        db.add_puzzle("one", SAMPLE_PUZZLE)
+        db.add_puzzle("two", SAMPLE_PUZZLE)
+        result = db.get_random_puzzle()
+        assert result is not None
+        assert "name" in result
+        assert result["name"] in ("one", "two")
+
+    def test_returns_none_when_empty(self):
+        assert db.get_random_puzzle() is None
+
+
 class TestAPI:
-    def test_get_puzzle(self, client):
-        resp = client.get("/api/puzzle")
+    def test_get_puzzle_by_name(self, client):
+        resp = client.get("/api/puzzle?name=test-puzzle")
         assert resp.status_code == 200
         data = resp.get_json()
         assert "words" in data
@@ -117,10 +129,22 @@ class TestAPI:
         assert "categories" in data
         assert len(data["words"]) == 16
         assert len(data["sets"]) == 4
+        assert data["name"] == "test-puzzle"
+
+    def test_get_puzzle_default_returns_random(self, client):
+        resp = client.get("/api/puzzle")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert "name" in data
+        assert "words" in data
+
+    def test_get_puzzle_not_found(self, client):
+        resp = client.get("/api/puzzle?name=nonexistent")
+        assert resp.status_code == 404
 
     def test_check_correct_group(self, client):
         resp = client.post(
-            "/api/check",
+            "/api/check?name=test-puzzle",
             json={"group": ["APPLE", "BANANA", "ORANGE", "CHERRY"]},
         )
         assert resp.status_code == 200
@@ -130,7 +154,7 @@ class TestAPI:
 
     def test_check_incorrect_group(self, client):
         resp = client.post(
-            "/api/check",
+            "/api/check?name=test-puzzle",
             json={"group": ["APPLE", "BANANA", "CAR", "DOG"]},
         )
         assert resp.status_code == 200
@@ -139,12 +163,19 @@ class TestAPI:
 
     def test_check_correct_regardless_of_order(self, client):
         resp = client.post(
-            "/api/check",
+            "/api/check?name=test-puzzle",
             json={"group": ["CHERRY", "ORANGE", "BANANA", "APPLE"]},
         )
         data = resp.get_json()
         assert data["correct"] is True
         assert data["category"] == "Fruits"
+
+    def test_check_missing_name_returns_400(self, client):
+        resp = client.post(
+            "/api/check",
+            json={"group": ["APPLE", "BANANA", "ORANGE", "CHERRY"]},
+        )
+        assert resp.status_code == 400
 
     def test_index_page(self, client):
         resp = client.get("/")

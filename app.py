@@ -7,8 +7,6 @@ app = Flask(__name__)
 # Initialize database tables on startup
 db.init_db()
 
-ACTIVE_PUZZLE = "puzzle-b44e"
-
 
 @app.route("/")
 def index():
@@ -17,7 +15,11 @@ def index():
 
 @app.route("/api/puzzle")
 def puzzle():
-    game_puzzle = db.get_puzzle_by_name(ACTIVE_PUZZLE)
+    name = request.args.get("name")
+    if name:
+        game_puzzle = db.get_puzzle_by_name(name)
+    else:
+        game_puzzle = db.get_random_puzzle()
     if not game_puzzle:
         return jsonify({"error": "Puzzle not found"}), 404
     return jsonify(game_puzzle)
@@ -25,10 +27,14 @@ def puzzle():
 
 @app.route("/api/check", methods=["POST"])
 def check_group():
+    name = request.args.get("name")
+    if not name:
+        return jsonify({"error": "Puzzle name is required"}), 400
+
     data = request.json
     group = data.get("group", [])
 
-    game_puzzle = db.get_puzzle_by_name(ACTIVE_PUZZLE)
+    game_puzzle = db.get_puzzle_by_name(name)
     if not game_puzzle:
         return jsonify({"error": "Puzzle not found"}), 404
 
