@@ -68,10 +68,10 @@
   box-sizing: border-box;
 }
 
-.groupFound.yellow { background: #ffe680; }
 .groupFound.green { background: #b3ffb3; }
+.groupFound.red { background: #f74545; }
 .groupFound.blue { background: #b3d9ff; }
-.groupFound.purple { background: #e6ccff; } 
+.groupFound.purple { background: #8836d4; }
 
 /* celebration overlay */
 .celebration {

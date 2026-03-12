@@ -2,6 +2,7 @@ let puzzleData = null;
 let puzzleName = null;
 let selected = [];
 let completed = [];
+const GROUP_COLORS = ["green", "red", "blue", "purple"];
 
 // Use puzzle name from URL if present, otherwise fetch a random one
 const urlParams = new URLSearchParams(window.location.search);
@@ -69,7 +70,8 @@ document.getElementById("submitBtn").onclick = () => {
       // remove words from overall grid
       removeFromGrid(selected);
       // show in completed UI
-      showCompletedGroup(selected, categoryName, "groupFound");
+      const difficultyIndex = puzzleData.categories.indexOf(categoryName);
+      showCompletedGroup(selected, categoryName, `groupFound ${GROUP_COLORS[difficultyIndex]}`);
       // mark as completed and show celebration if all found
       completed.push(categoryName);
       const totalSets = puzzleData && puzzleData.sets ? puzzleData.sets.length : 4;
