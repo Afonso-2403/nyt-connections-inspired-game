@@ -233,7 +233,7 @@ function showCelebration(){
   overlay.className = 'celebration';
   overlay.innerHTML = `
     <div class="celebrationContent">
-      <h1>Máquina!!</h1>
+      <h1>Parabéns!!</h1>
     </div>
   `;
   // optionally allow click to dismiss
