@@ -61,8 +61,14 @@ document.getElementById("submitBtn").onclick = () => {
   })
   .then(res => res.json())
   .then(resp => {
-    document.getElementById("result").textContent =
-      resp.correct ? "✅ Correct!" : "❌ Try again";
+    if (resp.correct) {
+      document.getElementById("result").textContent = "✅ Correct!";
+    } else if (resp.one_away) {
+      document.getElementById("result").textContent = "One away...";
+      showToast("One away...");
+    } else {
+      document.getElementById("result").textContent = "❌ Try again";
+    }
 
     if(resp.correct){
       // Example category name; you could let the backend return a real one
@@ -223,6 +229,14 @@ createSubmitBtn.onclick = () => {
     }
   });
 };
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
 
 // show a big celebratory message when all groups are found
 function showCelebration(){

@@ -103,6 +103,24 @@
   to { opacity: 1; transform: scale(1); }
 }
 
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: bold;
+  z-index: 9999;
+  animation: fadeIn 200ms ease-out, fadeOut 300ms ease-in 1.7s forwards;
+}
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
 /* Create Puzzle button */
 #createPuzzleBtn {
   margin: 20px;

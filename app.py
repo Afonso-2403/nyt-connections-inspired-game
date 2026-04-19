@@ -50,7 +50,11 @@ def check_group():
             set_category = category
             break
 
-    return jsonify({"correct": correct, "category": set_category})
+    group_set = set(group)
+    max_overlap = max(len(set(s) & group_set) for s in correct_sets)
+    one_away = (not correct) and max_overlap == 3
+
+    return jsonify({"correct": correct, "category": set_category, "one_away": one_away})
 
 
 def validate_and_clean_puzzle(data):
@@ -111,4 +115,4 @@ def create_puzzle():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
